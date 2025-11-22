@@ -25,24 +25,16 @@ namespace CustomMagnumSkin
 
         public static void Postfix(ref SpaceshipSkin __instance)
         {
-            //I think the original version of ship light is blinding the hell out of me in realspace. tone it down.
 
-            //original intensity is 12 for all
-            float light_adjusted_intensity = 10;
-            if (!__instance._isInBramfatura)
-            {
-                light_adjusted_intensity = 3;
-            }
-            foreach (Light light in __instance._additionalLights)
-            {
-                light.intensity = light_adjusted_intensity;
-                //Plugin.Logger.Log("--- light intensity?  " + light.intensity);
-            }
+
+            bool flag = SteamWrapper.SUPPORTER_PACK_AVAILABLE && SingletonMonoBehaviour<GameSettings>.Instance.ShowSupporterPackSkin;
 
             if (__instance._shipStdMat.GetTexture(Shader.PropertyToID("_MainTex")).name == "MagnumMain") {
-                Plugin.Logger.Log("--- applying override only once");
+                //Plugin.Logger.Log("--- applying override only once");
                 string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                Texture2D new_ship_texture = LoadPNG(Path.Combine(assemblyPath, "new_MagnumMain.png"));
+
+                Texture2D new_ship_texture = LoadPNG(Path.Combine(assemblyPath, "new_MagnumMain.png"), Path.Combine(assemblyPath, "default_MagnumMain.png"));
+                Texture2D new_antenna_texture = LoadPNG(Path.Combine(assemblyPath, "new_ship_devises.png"), Path.Combine(assemblyPath, "default_ship_devises.png"));
                 //load new texture?
 
                 if (new_ship_texture != null)
@@ -86,56 +78,67 @@ namespace CustomMagnumSkin
                     __instance._shipStdMat.SetTexture(Shader.PropertyToID("_MainTex"), new_ship_texture);
                     __instance._shipStdMat.SetTexture(Shader.PropertyToID("_BaseMap"), new_ship_texture);
 
-                    // override doesn't work. need to load in different material altogether.
-                    // __instance._shipStdMat.SetTexture(Shader.PropertyToID("_MainTex"), new_ship_texture);
-                    //__instance._shipPremiumMat.SetTexture(Shader.PropertyToID("_MainTex"), new_ship_texture);
-
-                    
-
-
-                    /*
-                    // this is like for antenna
-                    MeshRenderer[] array2 = __instance._detailsRenderers;
-                    for (int i = 0; i < array2.Length; i++)
-                    {
-                        array2[i].sharedMaterial = temp_material;
-                    }
-                    */
                     MeshRenderer[] array = __instance._shipRenderers;
 
-                    bool flag = SteamWrapper.SUPPORTER_PACK_AVAILABLE && SingletonMonoBehaviour<GameSettings>.Instance.ShowSupporterPackSkin;
                     for (int i = 0; i < array.Length; i++)
                     {
                         array[i].sharedMaterial = (flag ? __instance._shipPremiumMat : __instance._shipStdMat); ;
                     }
                 }
+
+                if (new_antenna_texture != null)
+                {
+                    __instance._detailsStdMat.SetTexture(Shader.PropertyToID("_MainTex"), new_antenna_texture);
+                    __instance._detailsStdMat.SetTexture(Shader.PropertyToID("_BaseMap"), new_antenna_texture);
+                    MeshRenderer[] array = __instance._detailsRenderers;
+                    for (int i = 0; i < array.Length; i++)
+                    {
+                        array[i].sharedMaterial = (flag ? __instance._detailsPremiumMat : __instance._detailsStdMat);
+                    }
+                }
+
+            }
+
+            if (__instance._shipStdMat.GetTexture(Shader.PropertyToID("_MainTex")).name == "New_MagnumMain")
+            {
+                //I think the original version of ship light is blinding the hell out of me in realspace. tone it down.
+
+                //original intensity is 12 for all
+                float light_adjusted_intensity = 10;
+                if (!__instance._isInBramfatura)
+                {
+                    light_adjusted_intensity = 3;
+                }
+                foreach (Light light in __instance._additionalLights)
+                {
+                    light.intensity = light_adjusted_intensity;
+                    //Plugin.Logger.Log("--- light intensity?  " + light.intensity);
+                }
             }
             
+
         }
 
 
-        private static Texture2D LoadPNG(string filePath)
+        private static Texture2D LoadPNG(string expected_filepath, string default_filepath)
         {
-            string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string defaultfilePath = Path.Combine(assemblyPath, "default_MagnumMain.png");
-
             Texture2D tex = null;
             byte[] fileData;
 
-            if (File.Exists(filePath))
+            if (File.Exists(expected_filepath))
             {
-                fileData = File.ReadAllBytes(filePath);
+                fileData = File.ReadAllBytes(expected_filepath);
                 tex = new Texture2D(2, 2);
                 tex.LoadImage(fileData); //This will auto-resize the texture dimensions.
             }
-            else if (File.Exists(defaultfilePath))
+            else if (File.Exists(default_filepath))
             {
-                fileData = File.ReadAllBytes(defaultfilePath);
+                fileData = File.ReadAllBytes(default_filepath);
                 tex = new Texture2D(2, 2);
                 tex.LoadImage(fileData); 
             }
             else {
-                throw new FileNotFoundException($"Unable to find {filePath}");
+                throw new FileNotFoundException($"Unable to find {expected_filepath} or {default_filepath}");
             }
                 return tex;
         }
