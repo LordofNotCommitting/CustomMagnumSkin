@@ -6,6 +6,6 @@ All the below images should be in the mod's folder. Which is in "[steam installe
 This mod uses "new_MagnumMain.png" as a skin if this file exist under said folder.
 If this image for skin does not exist, this mod uses "default_MagnumMain.png".
 
-**This mod ontains "MagnumMain_Cleaned.png" which is clean magnum skin you can use to create your own "new_MagnumMain.png". Go nuts.**
+**This mod contains "MagnumMain_Cleaned.png" which is clean magnum skin you can use to create your own "new_MagnumMain.png". Go nuts.**
 
 I have also reduced the natural ship lighting in realspace because images were blinding with it on.
