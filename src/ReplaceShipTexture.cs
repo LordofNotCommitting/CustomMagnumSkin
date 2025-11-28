@@ -122,25 +122,21 @@ namespace CustomMagnumSkin
 
         private static Texture2D LoadPNG(string expected_filepath, string default_filepath)
         {
-            Texture2D tex = null;
-            byte[] fileData;
+            string path = File.Exists(expected_filepath) ? expected_filepath : default_filepath;
+            if (!File.Exists(path))
+                return null;
 
-            if (File.Exists(expected_filepath))
-            {
-                fileData = File.ReadAllBytes(expected_filepath);
-                tex = new Texture2D(2, 2);
-                tex.LoadImage(fileData); //This will auto-resize the texture dimensions.
-            }
-            else if (File.Exists(default_filepath))
-            {
-                fileData = File.ReadAllBytes(default_filepath);
-                tex = new Texture2D(2, 2);
-                tex.LoadImage(fileData); 
-            }
-            else {
-                throw new FileNotFoundException($"Unable to find {expected_filepath} or {default_filepath}");
-            }
-                return tex;
+            byte[] data = File.ReadAllBytes(path);
+
+            // No mipmaps, no linear conversion, preserve pixels 1:1
+            Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false, false);
+            tex.LoadImage(data, markNonReadable: false);
+
+            tex.filterMode = FilterMode.Point;   // DO NOT use bilinear for tiny detail sprites
+            tex.wrapMode = TextureWrapMode.Clamp;
+            tex.Apply(false, false);
+
+            return tex;
         }
 
 
