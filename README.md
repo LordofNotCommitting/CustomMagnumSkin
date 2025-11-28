@@ -12,6 +12,10 @@ I have also reduced the natural ship lighting in realspace because images were b
 
 Changelog:
 
+v1.2
+
+My beautiful texture were being smudged by my terrible load of png file, which is now fixed.
+
 v1.1
 
 Now also support the antenna texture override, and this mod now also contain "default_ship_devises.png" which you can also edit. Save antenna as "new_ship_devises.png" on the same folder and it will be used over default one.
